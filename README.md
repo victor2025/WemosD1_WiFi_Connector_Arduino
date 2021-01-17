@@ -1,1 +1,12 @@
-# Wemos-D1-WiFi-connector
+# 基于ArduinoIDE的Wemos D1 WiFi连接驱动
+
+## 简介
+1.用于 Wemos D1 的WiFi搜索以及连接；
+2.工程文件为ArduinoIDE工程文件；
+3.单一功能的实现主要来自官方示例程序；
+4.所有头文件均为ArduinoIDE中ESP8266的库；
+5.编号在1.0.0以下的版本无法完整完成所有功能。
+## 基本实现功能
+1.WiFi搜索以及SSID、信号强度等的显示；
+2.通过端口监视器进行WiFi的选择和连接(包括加密WiFi的密码输入);
+3.通过端口监视器开启AP移动热点。
