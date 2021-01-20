@@ -10,8 +10,11 @@
 #define STAPSK  "Li1045899571"
 #endif
 
-const char* ssid     = STASSID;
-const char* password = STAPSK;
+//const char* ssid     = STASSID;
+//const char* password = STAPSK;
+
+String ssid = STASSID;
+String password = STAPSK;
 
 const char* host = "djxmmx.net";
 const uint16_t port = 17;
