@@ -6,7 +6,10 @@
                 "C:\\Users\\lihen\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
                 "C:\\Users\\lihen\\Documents\\Arduino\\libraries\\**",
                 "D:\\Program Files (x86)\\Arduino\\libraries\\**",
-                "C:\\Users\\lihen\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\**"
+                "C:\\Users\\lihen\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\**",
+                "C:\\Users\\Victor2022\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.7.4\\**",
+                "C:\\Users\\Victor2022\\Documents\\Arduino\\libraries\\**",
+                "C:\\Users\\Victor2022\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**"
             ],
             "forcedInclude": [],
             "defines": [

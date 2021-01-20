@@ -1,4 +1,4 @@
-c:\Users\Victor2022\OneDrive\工程或项目文件_OneDrive\Arduino\Wemos\ D1\WiFiScanAndConnect\build\core\core_esp8266_flash_quirks.cpp.o: \
+e:\学习用\工程或项目文件\Arduino工程文件\Wemos\ D1\WiFiScanAndConnect\build\core\core_esp8266_flash_quirks.cpp.o: \
  C:\Users\Victor2022\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4\cores\esp8266\core_esp8266_flash_quirks.cpp \
  C:\Users\Victor2022\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4/tools/sdk/include/c_types.h \
  C:\Users\Victor2022\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.7.4/tools/sdk/libc/xtensa-lx106-elf/include/stdint.h \
