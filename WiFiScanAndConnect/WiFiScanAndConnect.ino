@@ -65,6 +65,7 @@ void wifiConnect(){
     Serial.println("Connecting to "+ssid);
 
     WiFi.mode(WIFI_STA);
+    WiFi.disconnect();
     WiFi.begin(ssid,password);
 
     while ((WiFi.status() != WL_CONNECTED)&&(timeOut>0)) {
@@ -72,9 +73,11 @@ void wifiConnect(){
         Serial.print(".");
         timeOut--;
     }
-    Serial.println("S");
+    Serial.println("");
     if (timeOut == 0){
         Serial.println("WiFi connection failed!");
+        ssid = "";
+        password = "";
     }
     else{
         Serial.println("WiFi connected");
@@ -87,10 +90,16 @@ void wifiConnect(){
 void wifiDisconnect(){
     Serial.println("#**************************#");
 
-    WiFi.disconnect();
-    Serial.println("Disconnected from "+ssid+"!");
-    ssid = "";
-    password = "";
+    if (WiFi.status() == WL_CONNECTED){
+        WiFi.disconnect();
+        Serial.println("Disconnected from "+ssid+"!");
+        ssid = "";
+        password = "";
+    }
+    else{
+        Serial.println("No WiFi has been connected!");
+    }
+    
 
     Serial.println("#**************************#\n");
 }
