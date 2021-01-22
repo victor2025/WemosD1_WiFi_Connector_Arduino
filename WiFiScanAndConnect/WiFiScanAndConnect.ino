@@ -6,17 +6,25 @@
     模式p:WiFi连接，读取password模式；
     模式w:WiFi连接，开始连接WiFi;
     模式t:获取连接状态(status)模式;
+    模式A:AP模式，读取APssid；
+    模式P:AP模式，读取APpassword；
+    模式b:AP模式，开启AP热点；
 */
+
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
 
 String cmd;
 String inputString="";
 String ssid,password;
+String APssid,APpassword;
 
 char cmdMode,guide; //cmdMode定义命令模式，guide定义指示模式
 bool stringComplete=true;
 bool cmdPool = false;   //定义当前是否有命令需要执行，为真则执行，为假则等待输入
 
+ESP8266WebServer server(80);
 
 void setup(){ 
     Serial.begin(115200);
@@ -83,6 +91,8 @@ void wifiConnect(){
         Serial.println("WiFi connected");
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
+        APssid="";
+        APpassword = "";
     }
     Serial.println("#**************************#\n");
 }
@@ -95,11 +105,13 @@ void wifiDisconnect(){
         Serial.println("Disconnected from "+ssid+"!");
         ssid = "";
         password = "";
+        APssid = "";
+        APpassword = "";
     }
     else{
         Serial.println("No WiFi has been connected!");
     }
-    
+    // Serial.println(WiFi.softAPIP());
 
     Serial.println("#**************************#\n");
 }
@@ -107,7 +119,7 @@ void wifiDisconnect(){
 void wifiStatus(){
     Serial.println("#**************************#");
     if(WiFi.status()==WL_CONNECTED){
-        Serial.println("Connecting to "+ssid);
+        Serial.println("Connected to "+ssid);
         Serial.print("IP address: ");
         Serial.println(WiFi.localIP());
     }
@@ -142,6 +154,52 @@ void wifiScan(){
     Serial.println("#**************************#\n");
 }
 
+void handleRoot() {
+  server.send(200, "text/html", "<h1>You are connected</h1>");
+}
+
+void wifiAP(){
+    Serial.println("#**************************#");
+    Serial.print("Configuring Acess point "+APssid+"...");
+
+    WiFi.softAP(APssid,APpassword);
+
+    Serial.println("");
+    IPAddress myIP = WiFi.softAPIP();
+    Serial.print("AP IP address: ");
+    Serial.println(myIP);
+    server.on("/", handleRoot);
+    server.begin();
+
+    Serial.println("HTTP server started");
+    Serial.println("#**************************#\n");
+}
+
+void APdisconnect(){
+    Serial.println("#**************************#");
+
+    WiFi.softAPdisconnect();
+    Serial.println("Acess point "+APssid+" has been closed!");
+    ssid = "";
+    password = "";
+    APssid = "";
+    APpassword = "";
+    // if (WiFi.softAPIP()){
+    //     WiFi.disconnect();
+    //     Serial.println("Acess point "+APssid+"has been closed!");
+    //     ssid = "";
+    //     password = "";
+    //     APssid = "";
+    //     APpassword = "";
+    // }
+    // else{
+    //     Serial.println("No AP has started!");
+    // }
+    // Serial.println(WiFi.softAPIP());
+
+    Serial.println("#**************************#\n");
+}
+
 void loop(){
     serialEvent();
     //指示打印
@@ -162,14 +220,20 @@ void loop(){
             guide = 'n';
             break;
 
+            case 'A':
+            Serial.println(">>Please input your SSID of AP.");
+            guide = 'n';
+            break;
+
+            case 'P':
+            Serial.println(">>Please input your password of AP.");
+            guide = 'n';
+            break;
         }
     }
     //读取命令
     if(stringComplete&&(inputString.length()!=0)){
-        // Serial.println(cmdMode);
-        // delay(2000);
         switch(cmdMode){
-
             case 'c':   //命令模式
             cmd = inputString;
             Serial.println("Command:"+cmd+'\n');
@@ -198,6 +262,24 @@ void loop(){
             cmdPool = true;
             break;
 
+            case 'A':   //password模式
+            APssid = inputString;
+            Serial.println("APssid:"+APssid+'\n');
+            //输入缓冲区归零
+            inputString = "";
+            stringComplete = false;
+            cmdPool = true;
+            break;
+
+            case 'P':   //password模式
+            APpassword = inputString;
+            Serial.print("APpassword:");
+            printStar(APpassword);
+            //输入缓冲区归零
+            inputString = "";
+            stringComplete = false;
+            cmdPool = true;
+            break;
         }
     }
     //执行命令
@@ -208,27 +290,41 @@ void loop(){
                     cmd = "";
                     guide = 's';
                     cmdMode = 's';
-                    cmdPool = false;
                 }
                 else if(cmd=="disconnect"){
                     wifiDisconnect();
                     cmd = "";
                     guide = 'c';
                     cmdMode = 'c';
-                    cmdPool = false;
                 }
                 else if(cmd == "status"){
                     wifiStatus();
                     cmd = "";
                     guide = 'c';
-                    cmdPool = false;
                 }
                 else if(cmd == "scan"){
                     wifiScan();
                     cmd = "";
                     guide = 'c';
-                    cmdPool = false;
                 }
+                else if(cmd == "acesspointon"){
+                    cmd = "";
+                    guide = 'A';
+                    cmdMode = 'A';
+                }
+                else if(cmd == "acesspointoff"){
+                    APdisconnect();
+                    cmd = "";
+                    guide = 'c';
+                    cmdMode = 'c';
+                }
+                else{
+                    Serial.println("No such command!\n");
+                    cmd = "";
+                    guide = 'c';
+                    cmdMode = 'c';
+                }
+                cmdPool = false;
             break;
 
             case 's':
@@ -243,6 +339,23 @@ void loop(){
 
             case 'w':
                 wifiConnect();
+                guide = 'c';
+                cmdMode = 'c';
+                cmdPool = false;
+            break;
+
+            case 'A':
+                guide = 'P';
+                cmdMode = 'P';
+                cmdPool = false;
+            break;
+
+            case 'P':
+                cmdMode = 'b';
+            break;
+
+            case 'b':
+                wifiAP();
                 guide = 'c';
                 cmdMode = 'c';
                 cmdPool = false;
