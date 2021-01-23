@@ -14,29 +14,36 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(13,12);
 
 String cmd;
 String inputString="";
+String inputData="";
 String ssid,password;
-String APssid,APpassword;
-String number="hey!";
+String APssid = "test",APpassword = "1045899571";
+String number="";
 int i=0;
 
 char cmdMode,guide; //cmdMode定义命令模式，guide定义指示模式
 bool stringComplete=true;
 bool cmdPool = false;   //定义当前是否有命令需要执行，为真则执行，为假则等待输入
-bool server_if = false;
+bool server_if = true;
 
 ESP8266WebServer server(80);
 
 void setup(){ 
     Serial.begin(115200);
 
+    //初始化开启
+    cmdMode = 'b';
+    cmdPool = true;
     //初始化设置
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     delay(100);
-    cmdMode = 'c';  //初始模式为命令模式
+    // cmdMode = 'c';  //初始模式为命令模式
     guide='c';
     delay(2000);
     Serial.println(">>Setup done!");
@@ -203,8 +210,28 @@ void APdisconnect(){
     Serial.println("#**************************#\n");
 }
 
+void receiveSoftSerial(){
+    while (mySerial.available()) {
+        // get the new byte:
+        //Serial.println("available");
+        //Serial.print(Serial.available());
+        char inChar = (char)mySerial.read();
+        // add it to the inputString:
+        
+        // if the incoming character is a newline, set a flag so the main loop can
+        // do something about it:
+        inputData += inChar;
+        Serial.print(inputData);
+    }
+    // number = inputData;
+    inputData="";
+}
+
 void loop(){
     serialEvent();
+    receiveSoftSerial();
+    
+    // Serial.println(number);
     //指示打印
     if(guide!='n'){
         switch(guide){
@@ -236,6 +263,7 @@ void loop(){
     }
     //读取命令
     if(stringComplete&&(inputString.length()!=0)){
+        number = inputString;
         switch(cmdMode){
             case 'c':   //命令模式
             cmd = inputString;
@@ -378,8 +406,6 @@ void loop(){
         }
     }
     //开启服务器
-    i++;
-    number = (String)i;
     if(server_if){
         server.handleClient();
     }
