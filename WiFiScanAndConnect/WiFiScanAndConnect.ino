@@ -16,26 +16,27 @@
 #include <ESP8266WebServer.h>
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(13,12);
+SoftwareSerial mySerial(14,12);
 
 String cmd;
 String inputString="";
 String inputData="";
 String ssid,password;
 String APssid = "test",APpassword = "1045899571";
-String number="";
+String webData="";
 int i=0;
 
 char cmdMode,guide; //cmdMode定义命令模式，guide定义指示模式
 bool stringComplete=true;
 bool cmdPool = false;   //定义当前是否有命令需要执行，为真则执行，为假则等待输入
 bool server_if = true;
+bool dataComplete = false;
 
 ESP8266WebServer server(80);
 
 void setup(){ 
     Serial.begin(115200);
-
+    mySerial.begin(115200);
     //初始化开启
     cmdMode = 'b';
     cmdPool = true;
@@ -165,7 +166,7 @@ void wifiScan(){
 }
 
 void handleRoot() {
-  server.send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"0.01\"><h1>"+number+"</h1>");
+  server.send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"0.01\"><h1>"+webData+"</h1>");
 }
 
 void wifiAP(){
@@ -210,28 +211,30 @@ void APdisconnect(){
     Serial.println("#**************************#\n");
 }
 
-void receiveSoftSerial(){
+void softWareSerialEvent(){
+    inputData = "";
     while (mySerial.available()) {
         // get the new byte:
         //Serial.println("available");
         //Serial.print(Serial.available());
-        char inChar = (char)mySerial.read();
+        // char inChar = (char)mySerial.read();
         // add it to the inputString:
-        
+        char inChar = (char)mySerial.read();
         // if the incoming character is a newline, set a flag so the main loop can
         // do something about it:
-        inputData += inChar;
-        Serial.print(inputData);
+        if (inChar == '\n') {
+            dataComplete = true;
+        }
+        else{
+            inputData += inChar;
+        }
     }
     // number = inputData;
-    inputData="";
 }
 
 void loop(){
     serialEvent();
-    receiveSoftSerial();
-    
-    // Serial.println(number);
+    softWareSerialEvent();  
     //指示打印
     if(guide!='n'){
         switch(guide){
@@ -263,7 +266,6 @@ void loop(){
     }
     //读取命令
     if(stringComplete&&(inputString.length()!=0)){
-        number = inputString;
         switch(cmdMode){
             case 'c':   //命令模式
             cmd = inputString;
@@ -406,6 +408,11 @@ void loop(){
         }
     }
     //开启服务器
+    if(dataComplete){
+        webData = inputData;
+        Serial.println(webData);
+        dataComplete = false;
+    }
     if(server_if){
         server.handleClient();
     }
