@@ -19,10 +19,13 @@ String cmd;
 String inputString="";
 String ssid,password;
 String APssid,APpassword;
+String number="hey!";
+int i=0;
 
 char cmdMode,guide; //cmdMode定义命令模式，guide定义指示模式
 bool stringComplete=true;
 bool cmdPool = false;   //定义当前是否有命令需要执行，为真则执行，为假则等待输入
+bool server_if = false;
 
 ESP8266WebServer server(80);
 
@@ -155,7 +158,7 @@ void wifiScan(){
 }
 
 void handleRoot() {
-  server.send(200, "text/html", "<h1>You are connected</h1>");
+  server.send(200, "text/html", "<meta http-equiv=\"refresh\" content=\"0.01\"><h1>"+number+"</h1>");
 }
 
 void wifiAP(){
@@ -318,6 +321,18 @@ void loop(){
                     guide = 'c';
                     cmdMode = 'c';
                 }
+                else if(cmd == "serveron"){
+                    server_if = true;
+                    Serial.println("Server is on!\n");
+                    guide = 'c';
+                    cmdMode = 'c';
+                }
+                else if(cmd == "serveroff"){
+                    server_if = false;
+                    Serial.println("Server is off!\n");
+                    guide = 'c';
+                    cmdMode = 'c';
+                }
                 else{
                     Serial.println("No such command!\n");
                     cmd = "";
@@ -361,5 +376,11 @@ void loop(){
                 cmdPool = false;
             break;
         }
+    }
+    //开启服务器
+    i++;
+    number = (String)i;
+    if(server_if){
+        server.handleClient();
     }
 }
